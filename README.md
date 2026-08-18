@@ -38,6 +38,29 @@ ledger.set_status("examp1e.com", "monitoring", notes="parked, watching")
 ConsoleSink().emit(ledger.all())
 ```
 
+## Discovery
+
+Two kinds of source feed the ledger:
+
+```python
+from lookalike_radar import generate_permutations, run_discovery, Ledger
+
+# Generative: algorithmic typo/combosquat candidates (pure, no network).
+candidates = generate_permutations("example.com", include_combosquats=True)
+
+# Observational: hosts actually seen in CT logs, urlscan, and OpenPhish.
+ledger = Ledger("findings.db")
+ledger.upsert_many(run_discovery("example", exclude_domains=["example.com"],
+                                 urlscan_api_key="..."))  # key optional
+```
+
+Permutations *guess* what an attacker might register (resolve them before
+trusting one); the observational sources report FQDNs that already exist —
+including combosquats and wildcard-cloaked subdomain abuse under a legitimate
+apex that permutations and CT sweeps both miss. Every source is best-effort: one
+being slow or down narrows a run's coverage, it never aborts the scan. Networked
+sources need the `[http]` extra.
+
 ## Concepts
 
 - **Finding** — one suspicious domain and everything known about it: the brand it
@@ -55,9 +78,9 @@ ConsoleSink().emit(ledger.all())
 
 ## Status
 
-Alpha. The data core (findings, ledger, providers, sinks) is stable and
-dependency-free. Discovery sources (certificate transparency, permutations,
-urlscan/OpenPhish) and weaponization scoring land in subsequent releases.
+Alpha. The data core (findings, ledger, providers, sinks) and discovery sources
+(permutations, certificate transparency, urlscan/OpenPhish) are in place.
+Weaponization scoring — the "is this a live phishing kit?" verdict — lands next.
 
 ## License
 

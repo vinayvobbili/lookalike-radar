@@ -31,6 +31,11 @@ from .findings import (
 from .ledger import Ledger
 from .providers import EnrichmentProvider, run_providers
 from .sinks import ConsoleSink, JsonlSink, MultiSink, Sink
+from .discovery import (
+    generate as generate_permutations,
+    ingest_reported_url,
+    run_discovery,
+)
 
 __version__ = "0.1.0"
 
@@ -48,5 +53,8 @@ __all__ = [
     "ConsoleSink",
     "JsonlSink",
     "MultiSink",
+    "generate_permutations",
+    "run_discovery",
+    "ingest_reported_url",
     "__version__",
 ]
