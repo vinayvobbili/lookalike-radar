@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project aims to
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] — unreleased
+## [0.1.0] — 2026-08-18
 
 Initial release: a vendor-neutral engine for discovering and scoring
 brand-impersonation (lookalike / typosquat / combosquat) domains.

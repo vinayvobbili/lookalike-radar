@@ -1,22 +1,16 @@
 name: release
 
 # Trusted Publishing (OIDC) — no API tokens. A pending publisher must be
-# registered on PyPI (and TestPyPI) matching: workflow file `release.yml`,
-# environment `pypi` / `testpypi`, owner/repo vinayvobbili/lookalike-radar.
+# registered on PyPI matching: workflow file `release.yml`, environment `pypi`,
+# owner/repo vinayvobbili/lookalike-radar.
 #
-#   - push a tag `v*`            -> build + publish to PyPI (environment: pypi)
-#   - run manually (dispatch)    -> build + publish to TestPyPI (default) or PyPI
+#   - push a tag `v*`   -> build + publish to PyPI
+#   - run manually      -> build + publish to PyPI (re-publish / recovery)
 
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
-    inputs:
-      target:
-        description: "Publish target"
-        type: choice
-        options: [testpypi, pypi]
-        default: testpypi
 
 permissions:
   contents: read
@@ -37,25 +31,8 @@ jobs:
           name: dist
           path: dist/
 
-  testpypi:
-    needs: build
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
-    runs-on: ubuntu-latest
-    environment: testpypi
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-      - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-
   pypi:
     needs: build
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi')
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
