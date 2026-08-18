@@ -36,6 +36,13 @@ from .discovery import (
     ingest_reported_url,
     run_discovery,
 )
+from .scoring import (
+    LLMScorer,
+    RulesScorer,
+    evidence_summary,
+    score_domain,
+    score_finding,
+)
 
 __version__ = "0.1.0"
 
@@ -56,5 +63,10 @@ __all__ = [
     "generate_permutations",
     "run_discovery",
     "ingest_reported_url",
+    "score_domain",
+    "score_finding",
+    "evidence_summary",
+    "RulesScorer",
+    "LLMScorer",
     "__version__",
 ]

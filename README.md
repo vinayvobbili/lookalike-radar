@@ -61,6 +61,34 @@ apex that permutations and CT sweeps both miss. Every source is best-effort: one
 being slow or down narrows a run's coverage, it never aborts the scan. Networked
 sources need the `[http]` extra.
 
+## Scoring
+
+The headline question — *is this lookalike a live phishing kit, or a parked
+typo?* — is answered by collecting hard signals (page live, login/password form,
+brand-on-page, MX/SPF/DMARC mail capability, parked-page detection, does it
+resolve) and running them through a scorer:
+
+```python
+from lookalike_radar import Ledger, RulesScorer, LLMScorer, score_finding
+
+ledger = Ledger("findings.db")
+
+# Default: deterministic, zero-dependency P1-P4 verdict — no LLM, no key.
+for f in ledger.all():
+    ledger.upsert(score_finding(f))
+
+# Or bring your own model — any callable (system, facts) -> JSON string.
+def my_llm(system, facts):
+    return call_your_model(system=system, user=facts)   # OpenAI, Anthropic, local, ...
+
+score_finding(f, scorer=LLMScorer(my_llm))   # falls back to rules if the model errors
+```
+
+Tiers: **P1** live/weaponized (working credential clone), **P2** strong
+impersonation — a mail-capable combosquat is at least P2 because it can phish by
+email today regardless of its web page, **P3** suspicious but not weaponized,
+**P4** benign/dormant. Signal collection needs the `dns` and `http` extras.
+
 ## Concepts
 
 - **Finding** — one suspicious domain and everything known about it: the brand it
@@ -78,9 +106,10 @@ sources need the `[http]` extra.
 
 ## Status
 
-Alpha. The data core (findings, ledger, providers, sinks) and discovery sources
-(permutations, certificate transparency, urlscan/OpenPhish) are in place.
-Weaponization scoring — the "is this a live phishing kit?" verdict — lands next.
+Beta. The full pipeline is in place: data core (findings, ledger, providers,
+sinks), discovery (permutations, certificate transparency, urlscan/OpenPhish),
+and weaponization scoring (rules-based default + bring-your-own-LLM). Enrichment
+provider adapters and packaging polish are next.
 
 ## License
 
