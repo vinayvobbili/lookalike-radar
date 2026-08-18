@@ -32,6 +32,9 @@ whois = ["python-whois>=0.8"]
 all = ["dnspython>=2.0", "requests>=2.25", "python-whois>=0.8"]
 dev = ["pytest>=7", "build", "twine"]
 
+[project.scripts]
+lookalike-radar = "lookalike_radar.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/vinayvobbili/lookalike-radar"
 Issues = "https://github.com/vinayvobbili/lookalike-radar/issues"

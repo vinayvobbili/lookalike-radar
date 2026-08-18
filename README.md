@@ -89,6 +89,31 @@ impersonation — a mail-capable combosquat is at least P2 because it can phish 
 email today regardless of its web page, **P3** suspicious but not weaponized,
 **P4** benign/dormant. Signal collection needs the `dns` and `http` extras.
 
+## Enrichment providers
+
+Fold your own threat-intel into the verdict without writing a class:
+
+```python
+from lookalike_radar import CallableProvider, score_finding
+
+vt = CallableProvider("virustotal", lambda d: my_vt_lookup(d))
+score_finding(f, providers=[vt])   # signals land under signals["providers"], visible to an LLMScorer
+```
+
+Providers are best-effort: one that raises is skipped, never fatal.
+
+## Command line
+
+```
+lookalike-radar permute example.com --combosquats
+lookalike-radar scan example --apex example.com --score --limit 20
+lookalike-radar score examp1e.com --brand example
+lookalike-radar list --status new
+```
+
+`scan` and `score` need the network extras; `permute` and `list` are offline.
+Add `--json` to any command for machine-readable output.
+
 ## Concepts
 
 - **Finding** — one suspicious domain and everything known about it: the brand it

@@ -29,7 +29,7 @@ from .findings import (
     Weaponization,
 )
 from .ledger import Ledger
-from .providers import EnrichmentProvider, run_providers
+from .providers import CallableProvider, EnrichmentProvider, run_providers
 from .sinks import ConsoleSink, JsonlSink, MultiSink, Sink
 from .discovery import (
     generate as generate_permutations,
@@ -55,6 +55,7 @@ __all__ = [
     "Source",
     "Ledger",
     "EnrichmentProvider",
+    "CallableProvider",
     "run_providers",
     "Sink",
     "ConsoleSink",

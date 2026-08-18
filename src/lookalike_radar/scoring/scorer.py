@@ -159,6 +159,11 @@ def facts_prompt(signals: Dict[str, Any]) -> str:
         f"Mail-capable (MX): {d.get('has_mx')} {d.get('mx_hosts')}; "
         f"SPF: {d.get('has_spf')}; DMARC: {d.get('has_dmarc')}",
     ]
+    providers = signals.get("providers")
+    if providers:
+        lines.append("\nThird-party enrichment signals:")
+        for name, sig in providers.items():
+            lines.append(f"  {name}: {json.dumps(sig, default=str)}")
     if signals.get("page_text_excerpt"):
         lines.append(f"\nVisible page text (truncated):\n{signals['page_text_excerpt']}")
     return "\n".join(lines)

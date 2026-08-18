@@ -14,7 +14,7 @@ coverage for one domain, not fail the run.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Protocol, runtime_checkable
+from typing import Any, Callable, Dict, List, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -27,6 +27,23 @@ class EnrichmentProvider(Protocol):
     def enrich(self, domain: str) -> Dict[str, Any]:
         """Return a dict of signals for ``domain`` (empty dict if none)."""
         ...
+
+
+class CallableProvider:
+    """Wrap a plain ``domain -> dict`` function as an :class:`EnrichmentProvider`.
+
+    Saves writing a class for a one-off lookup::
+
+        vt = CallableProvider("virustotal", lambda d: my_vt_lookup(d))
+        score_finding(f, providers=[vt])
+    """
+
+    def __init__(self, name: str, fn: Callable[[str], Dict[str, Any]]):
+        self.name = name
+        self._fn = fn
+
+    def enrich(self, domain: str) -> Dict[str, Any]:
+        return self._fn(domain) or {}
 
 
 def run_providers(domain: str, providers: List[EnrichmentProvider]) -> Dict[str, Any]:

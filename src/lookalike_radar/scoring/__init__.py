@@ -17,9 +17,10 @@ P1–P4 weaponization verdict. The default is the zero-dependency
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from ..findings import Finding, Infrastructure, RiskTier, Weaponization, _utcnow_iso
+from ..providers import EnrichmentProvider, run_providers
 from .scorer import LLMScorer, RulesScorer, Scorer, SYSTEM_PROMPT, facts_prompt
 from .signals import collect_signals
 
@@ -41,18 +42,24 @@ def score_domain(
     brand: Optional[str] = None,
     *,
     scorer: Optional[Scorer] = None,
+    providers: Optional[List[EnrichmentProvider]] = None,
     page_fetcher: Optional[Callable[[str], Tuple[Dict[str, Any], str]]] = None,
     dns_resolver: Optional[Callable[[str], Dict[str, Any]]] = None,
 ) -> Weaponization:
     """Collect signals for ``domain`` and return a :class:`Weaponization` verdict.
 
     Uses :class:`RulesScorer` unless you pass a ``scorer`` (e.g. an
-    :class:`LLMScorer`). The ``page_fetcher`` / ``dns_resolver`` seams are for
-    testing or custom transports.
+    :class:`LLMScorer`). Optional ``providers`` (your bring-your-own enrichment,
+    e.g. VirusTotal/Shodan) are run and folded into the signal blob under
+    ``signals["providers"]`` — where an :class:`LLMScorer` can weigh them and
+    where they persist as evidence. The ``page_fetcher`` / ``dns_resolver`` seams
+    are for testing or custom transports.
     """
     scorer = scorer or RulesScorer()
     signals = collect_signals(domain, brand=brand,
                               page_fetcher=page_fetcher, dns_resolver=dns_resolver)
+    if providers:
+        signals["providers"] = run_providers(domain, list(providers))
     verdict = scorer.score(signals)
     tier = verdict.get("risk_tier")
     return Weaponization(
@@ -65,10 +72,12 @@ def score_domain(
 
 
 def score_finding(finding: Finding, *, scorer: Optional[Scorer] = None,
+                  providers: Optional[List[EnrichmentProvider]] = None,
                   page_fetcher=None, dns_resolver=None) -> Finding:
     """Score a finding in place: fill its weaponization verdict and, if empty,
     its resolved A records. Returns the same finding for chaining into an upsert."""
     w = score_domain(finding.domain, brand=finding.brand, scorer=scorer,
+                     providers=providers,
                      page_fetcher=page_fetcher, dns_resolver=dns_resolver)
     finding.weaponization = w
     a_records = (w.signals.get("dns") or {}).get("a_records") or []
