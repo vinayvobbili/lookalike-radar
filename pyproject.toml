@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lookalike-radar"
+version = "0.1.0"
+description = "Discover and score brand-impersonation (lookalike / typosquat / combosquat) domains."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+keywords = [
+    "typosquat", "combosquat", "lookalike", "phishing", "brand-protection",
+    "domain-monitoring", "threat-intel", "certificate-transparency",
+]
+authors = [{ name = "Vinay Vobbilichetty" }]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Information Technology",
+    "Topic :: Security",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = []  # core (model + ledger + protocols) is stdlib-only
+
+[project.optional-dependencies]
+# discovery/scoring extras — pulled in only when you use those modules
+dns = ["dnspython>=2.0"]
+http = ["requests>=2.25"]
+whois = ["python-whois>=0.8"]
+all = ["dnspython>=2.0", "requests>=2.25", "python-whois>=0.8"]
+dev = ["pytest>=7", "build", "twine"]
+
+# [project.urls] intentionally omitted until the public repo URL is confirmed.
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lookalike_radar"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
